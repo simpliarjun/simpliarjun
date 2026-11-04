@@ -5,6 +5,43 @@ TEXT_X = 415
 SVG_WIDTH = 1160
 SVG_HEIGHT = 530
 
+DRAGON_ASCII_RAW = [
+    "           `:|i*i|;;i*i;^`",
+    "        '!*i;,.  ,imm 'kk|*!'",
+    "      '!|^     =wpbljbwk! .;+i'",
+    "     !+~l:,l*,!hmkbkkj=.     ^+!",
+    "    *;:HkwhmHNkHMh=*' lMm'+p=  |+",
+    "   m%+.;|j; .^`~pk @=,..k@H|!   :=",
+    "  +|x&`Mkl~'mgwqqkph'~H! b@bphj  :~",
+    " !* ;hNm':.Hk`  ;=i   +@`'&$~^w'  i|",
+    ".=    ` ^hNb           @! %%wl     ='",
+    "||          ^:^'     .xH.,$,i$`    !i",
+    "=`      ,kqgwqwwg+ . ;w` Mk |i     '=",
+    "j      lMm!'   .;^     !gb '        j",
+    "j     wh`    '  iqxjjmgqmmwwwgx,    j",
+    "j    mM   `bwwg;'!=kk~;xh~`,,,lH+   j",
+    "=`  `@;  ,Hm,.`.      :h`,qwgb !$; 'j",
+    "||  |&.  bg              hk .qg qp !i",
+    ".=  !&.  lM     |'       .  `wq wk j'",
+    " !* '&*  .wg*;iqN`  `!     .qx i$,!i",
+    "  ~; ~@,   +kqk=   .Hx   '^`,:mH;,=",
+    "   =; kH*         |Mb  `phwwwwk.ix.",
+    "    +i !ggj!,`,;=wh*   hk'     !l.",
+    "     !~` ;xqwwwqm|    .@i    ^~|",
+    "      '**,             ~M=+=*i`",
+    "        '!*i:`        ..+gp+'",
+    "           `;i*iiiiiii*i:"
+]
+
+def generate_ascii_block(fill_color):
+    lines = [f'<text x="15" y="30" fill="{fill_color}" class="ascii">']
+    for idx, raw in enumerate(DRAGON_ASCII_RAW):
+        y = 30 + idx * 20
+        esc = raw.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        lines.append(f'<tspan x="15" y="{y}">{esc}</tspan>')
+    lines.append('</text>')
+    return '\n'.join(lines)
+
 def make_dotted_row(y, prefix, key_parts, dots_id, val_id, value):
     key_text = prefix + ''.join(t for t, _ in key_parts)
     key_xml = f'<tspan x="{TEXT_X}" y="{y}" class="cc">{prefix}</tspan>'
@@ -76,24 +113,36 @@ def update_svg(filename, fill_color):
     with open(filename, 'r', encoding='utf-8') as f:
         content = f.read()
     
+    # Update <svg> tag with viewBox and dimensions
     svg_tag = f'<svg xmlns="http://www.w3.org/2000/svg" font-family="ConsolasFallback,Consolas,monospace" viewBox="0 0 {SVG_WIDTH} {SVG_HEIGHT}" width="{SVG_WIDTH}px" height="{SVG_HEIGHT}px" font-size="16px">'
     content = re.sub(r'<svg\s+[^>]*>', svg_tag, content, count=1)
+    
+    # Update <rect> tag
     content = re.sub(r'<rect\s+width="[^"]*"\s+height="[^"]*"', f'<rect width="{SVG_WIDTH}px" height="{SVG_HEIGHT}px"', content, count=1)
     
-    def trim_ascii(m):
-        prefix = m.group(1)
-        text = m.group(2).rstrip()
-        return f'{prefix}{text}</tspan>'
-    content = re.sub(r'(<tspan\s+x="15"\s+y="\d+">)(.*?)</tspan>', trim_ascii, content)
+    # Replace ASCII block
+    new_ascii_block = generate_ascii_block(fill_color)
+    content, count_ascii = re.subn(
+        r'<text x="15" y="30" fill="[^"]*" class="ascii">.*?</text>',
+        new_ascii_block,
+        content,
+        flags=re.DOTALL
+    )
+    assert count_ascii == 1, f"Failed to replace ASCII block in {filename}"
     
-    new_block = generate_terminal_block(fill_color)
-    pattern = r'<text x="\d+"\s+y="30"\s+fill="[^"]*">.*?</text>'
-    updated, count = re.subn(pattern, new_block, content, flags=re.DOTALL)
-    assert count == 1, f"Failed to replace terminal block in {filename}"
+    # Replace terminal stats block
+    new_term_block = generate_terminal_block(fill_color)
+    content, count_term = re.subn(
+        r'<text x="415" y="30" fill="[^"]*">.*?</text>',
+        new_term_block,
+        content,
+        flags=re.DOTALL
+    )
+    assert count_term == 1, f"Failed to replace terminal block in {filename}"
     
     with open(filename, 'w', encoding='utf-8') as f:
-        f.write(updated)
-    print(f"Updated {filename} successfully with accurate stats.")
+        f.write(content)
+    print(f"Updated {filename} successfully with custom dragon emblem.")
 
 if __name__ == '__main__':
     update_svg('dark_mode.svg', '#c9d1d9')

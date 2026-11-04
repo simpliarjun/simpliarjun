@@ -320,6 +320,7 @@ def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib
     """
     Parse SVG files and update elements with my age, commits, stars, repositories, and lines written
     """
+    etree.register_namespace('', 'http://www.w3.org/2000/svg')
     tree = etree.parse(filename)
     root = tree.getroot()
     justify_format(root, 'commit_data', commit_data, 28)
