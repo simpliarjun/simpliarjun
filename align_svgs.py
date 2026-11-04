@@ -66,9 +66,9 @@ def generate_terminal_block(fill_color):
         make_dotted_row(390, '. ', [('Discord', 'key'), (':', None)], None, None, 'simpliarjun'),
         make_dotted_row(410, '. ', [('GitHub', 'key'), (':', None)], None, None, 'simpliarjun'),
         make_header_row(450, '- GitHub Stats'),
-        f'<tspan x="{TEXT_X}" y="470" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">95</tspan> {{<tspan class="key">Contributed</tspan>: <tspan class="value" id="contrib_data">133</tspan>}} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ................ </tspan><tspan class="value" id="star_data">342</tspan>',
-        f'<tspan x="{TEXT_X}" y="490" class="cc">. </tspan><tspan class="key">Commmits</tspan>:<tspan class="cc" id="commit_data_dots"> ...................... </tspan><tspan class="value" id="commit_data">2,116</tspan> | <tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> ....... </tspan><tspan class="value" id="follower_data">196</tspan>',
-        f'<tspan x="{TEXT_X}" y="510" class="cc">. </tspan><tspan class="key">Lines of Code on GitHub</tspan>:<tspan class="cc" id="loc_data_dots"> ..... </tspan><tspan class="value" id="loc_data">446,276</tspan> ( <tspan class="addColor" id="loc_add">523,178</tspan><tspan class="addColor">++</tspan>, <tspan id="loc_del_dots"> </tspan><tspan class="delColor" id="loc_del">76,902</tspan><tspan class="delColor">--</tspan> )'
+        f'<tspan x="{TEXT_X}" y="470" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">18</tspan> {{<tspan class="key">Contributed</tspan>: <tspan class="value" id="contrib_data">18</tspan>}} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ................... </tspan><tspan class="value" id="star_data">0</tspan>',
+        f'<tspan x="{TEXT_X}" y="490" class="cc">. </tspan><tspan class="key">Commits</tspan>:<tspan class="cc" id="commit_data_dots"> ......................... </tspan><tspan class="value" id="commit_data">144</tspan> | <tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> ......... </tspan><tspan class="value" id="follower_data">0</tspan>',
+        f'<tspan x="{TEXT_X}" y="510" class="cc">. </tspan><tspan class="key">Lines of Code on GitHub</tspan>:<tspan class="cc" id="loc_data_dots"> ........ </tspan><tspan class="value" id="loc_data">14,410</tspan> ( <tspan class="addColor" id="loc_add">15,820</tspan><tspan class="addColor">++</tspan>, <tspan id="loc_del_dots"> </tspan><tspan class="delColor" id="loc_del">1,410</tspan><tspan class="delColor">--</tspan> )'
     ]
     return f'<text x="{TEXT_X}" y="30" fill="{fill_color}">\n' + '\n'.join(rows) + '\n</text>'
 
@@ -76,14 +76,10 @@ def update_svg(filename, fill_color):
     with open(filename, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Update <svg> tag with viewBox and dimensions
     svg_tag = f'<svg xmlns="http://www.w3.org/2000/svg" font-family="ConsolasFallback,Consolas,monospace" viewBox="0 0 {SVG_WIDTH} {SVG_HEIGHT}" width="{SVG_WIDTH}px" height="{SVG_HEIGHT}px" font-size="16px">'
     content = re.sub(r'<svg\s+[^>]*>', svg_tag, content, count=1)
-    
-    # Update <rect> tag
     content = re.sub(r'<rect\s+width="[^"]*"\s+height="[^"]*"', f'<rect width="{SVG_WIDTH}px" height="{SVG_HEIGHT}px"', content, count=1)
     
-    # Trim trailing whitespace in ascii art lines
     def trim_ascii(m):
         prefix = m.group(1)
         text = m.group(2).rstrip()
@@ -97,7 +93,7 @@ def update_svg(filename, fill_color):
     
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(updated)
-    print(f"Updated {filename} successfully with width={SVG_WIDTH} and text_x={TEXT_X}.")
+    print(f"Updated {filename} successfully with accurate stats.")
 
 if __name__ == '__main__':
     update_svg('dark_mode.svg', '#c9d1d9')
